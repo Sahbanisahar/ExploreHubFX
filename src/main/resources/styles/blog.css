@@ -1,0 +1,5 @@
+.blog {
+    -fx-background-color: white; /* Set background color */
+    -fx-padding: 20px; /* Set padding */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2); /* Add shadow */
+}
