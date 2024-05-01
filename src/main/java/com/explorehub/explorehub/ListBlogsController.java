@@ -86,20 +86,29 @@ public class ListBlogsController {
 
             // Add action for the "Read More" button
             readMoreButton.setOnAction(e -> {
-                // You can implement the logic to navigate to the full blog page here
-                // For example:
-                // FXMLLoader loader = new FXMLLoader(getClass().getResource("FullBlog.fxml"));
-                // Parent root = loader.load();
-                // Stage stage = (Stage) readMoreButton.getScene().getWindow();
-                // Scene scene = new Scene(root);
-                // stage.setScene(scene);
-                // stage.show();
-                System.out.println("Navigating to full blog page for: " + blog.getTitle());
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("BlogDetails.fxml"));
+                    Parent root = loader.load();
+
+                    // Get the controller and set the blog data
+                    BlogDetailsController blogDetailsController = loader.getController();
+                    blogDetailsController.setBlogData(blog);
+
+                    // Set up the stage for the blog details page
+                    Stage stage = new Stage();
+                    stage.setTitle(blog.getTitle());
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             });
 
             // Add action for the "Update" button
             updateButton.setOnAction(e -> {
                 openUpdateForm(blog);
+                BlogDAO.updateBlog(blog);
             });
 
             // Add action for the "Delete" button
@@ -164,7 +173,6 @@ public class ListBlogsController {
     // Action for the "Add a Post" button
     @FXML
     private void handleAddPostButtonClick() {
-        // You can implement the logic to navigate to the add page here
         try {
             // Load the FXML file for the add page
             FXMLLoader loader = new FXMLLoader(getClass().getResource("AddBlog.fxml"));
@@ -205,7 +213,9 @@ public class ListBlogsController {
             // Pass the selected blog to the controller of the update page
             UpdateBlogController updateBlogController = loader.getController();
             updateBlogController.setBlogToUpdate(blog);
-
+            updateBlogController.setOnBlogUpdatedListener(event -> {
+                loadBlogs(); // Refresh blogs
+            });
             // Show the update form
             stage.show();
         } catch (IOException e) {

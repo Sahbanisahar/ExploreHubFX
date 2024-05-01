@@ -14,33 +14,44 @@
 
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.explorehub.explorehub.ListBlogsController">
    <children>
-      <HBox alignment="CENTER">
+      <HBox style="-fx-background-color: #004265;">
          <children>
-            <Text fill="#ffa600" stroke="#003cff" strokeType="OUTSIDE" strokeWidth="0.5" text="EXPLORE" textAlignment="CENTER">
+            <Text fill="#ffa600" stroke="WHITE" strokeType="OUTSIDE" text="EXPLORE" textAlignment="CENTER">
                <font>
                   <Font name="Impact" size="36.0" />
                </font>
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" top="10.0" />
+               </HBox.margin>
             </Text>
-            <Text fill="#0365ff" stroke="#003cff" strokeType="OUTSIDE" strokeWidth="0.5" text="HUB" textAlignment="CENTER">
+            <Text fill="#0365ff" stroke="WHITE" strokeType="OUTSIDE" text="HUB" textAlignment="CENTER">
                <font>
                   <Font name="Impact" size="36.0" />
                </font>
+               <HBox.margin>
+                  <Insets top="10.0" />
+               </HBox.margin>
             </Text>
+            <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Java Version" textAlignment="CENTER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <HBox.margin>
+                  <Insets left="10.0" top="25.0" />
+               </HBox.margin>
+            </Text>
+            <Button mnemonicParsing="false" style="-fx-background-color: #75BD00;" text="🔓 Login" textFill="WHITE">
+               <HBox.margin>
+                  <Insets left="725.0" top="20.0" />
+               </HBox.margin>
+            </Button>
          </children>
       </HBox>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Java Version" textAlignment="CENTER">
-         <font>
-            <Font size="14.0" />
-         </font>
-         <VBox.margin>
-            <Insets bottom="20.0" />
-         </VBox.margin>
-      </Text>
       <HBox alignment="TOP_RIGHT">
          <children>
             <Button fx:id="addBlogButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#handleAddPostButtonClick" style="-fx-background-color: Orange;" text="(+) Post Blog" textAlignment="CENTER" textFill="WHITE">
                <HBox.margin>
-                  <Insets right="20.0" />
+                  <Insets right="20.0" top="10.0" />
                </HBox.margin>
                <font>
                   <Font name="System Bold" size="14.0" />

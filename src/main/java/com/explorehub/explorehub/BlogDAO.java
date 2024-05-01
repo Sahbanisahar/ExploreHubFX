@@ -66,7 +66,7 @@ public class BlogDAO {
             connection = DatabaseConnection.getConnection();
 
             // Prepare SQL statement
-            String sql = "UPDATE blogs SET cover = ?, title = ?, author = ?, content = ? WHERE id = ?";
+            String sql = "UPDATE blog SET cover = ?, title = ?, author = ?, content = ? WHERE id = ?";
             statement = connection.prepareStatement(sql);
             statement.setString(1, blog.getCover());
             statement.setString(2, blog.getTitle());
