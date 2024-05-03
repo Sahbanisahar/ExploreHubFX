@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -23,6 +24,9 @@ import java.util.StringTokenizer;
 public class ListBlogsController {
 
     @FXML
+    private TextField searchField;
+
+    @FXML
     private GridPane gridPane;
 
     @FXML
@@ -31,8 +35,108 @@ public class ListBlogsController {
     @FXML
     public void initialize() {
         loadBlogs();
+        setupSearchListener();
     }
 
+    private void setupSearchListener() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            searchBlogs(newValue);
+        });
+    }
+
+    private void searchBlogs(String query) {
+        List<Blog> searchedBlogs = BlogDAO.searchBlogsByTitle(query);
+        gridPane.getChildren().clear();
+        gridPane.setHgap(10);
+        gridPane.setVgap(20);
+
+        // Define grid properties
+        int numColumns = 3;
+        int rowIndex = 0;
+        int colIndex = 0;
+
+        // Iterate over searched blogs and populate the grid
+        for (Blog blog : searchedBlogs) {
+            // Create new instances of labels and buttons for each blog post
+            Label titleLabel = new Label();
+            titleLabel.setStyle("-fx-font-weight: bold;");
+            Label contentLabel = new Label();
+            Button readMoreButton = new Button("Read More");
+            readMoreButton.setStyle("-fx-background-color: orange; -fx-text-fill: white;"); // Set button style
+            Button updateButton = new Button("Update");
+            updateButton.setStyle("-fx-background-color: blue; -fx-text-fill: white;"); // Set button style
+            Button deleteButton = new Button("Delete");
+            deleteButton.setStyle("-fx-background-color: red; -fx-text-fill: white;"); // Set button style
+
+            // Load cover image dynamically
+            ImageView imageView = new ImageView();
+            Image coverImage = loadCoverImage();
+            imageView.setImage(coverImage);
+            imageView.setFitWidth(300);
+            imageView.setFitHeight(200);
+
+            // Set content for the blog post
+            titleLabel.setText(blog.getTitle());
+            contentLabel.setText(truncateContent(blog.getContent()));
+
+            // Create new instance of HBox to hold buttons
+            HBox buttonBox = new HBox(10); // Set spacing between buttons
+            buttonBox.getChildren().addAll(readMoreButton, updateButton, deleteButton);
+
+            // Create new instance of VBox for each blog post
+            VBox newBlogBox = new VBox();
+            newBlogBox.getStyleClass().add("blog");
+            newBlogBox.getChildren().addAll(imageView, titleLabel, contentLabel, buttonBox);
+
+            // Add action for the "Read More" button
+            readMoreButton.setOnAction(e -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("BlogDetails.fxml"));
+                    Parent root = loader.load();
+
+                    // Get the controller and set the blog data
+                    BlogDetailsController blogDetailsController = loader.getController();
+                    blogDetailsController.setBlogData(blog);
+
+                    // Set up the stage for the blog details page
+                    Stage stage = new Stage();
+                    stage.setTitle(blog.getTitle());
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            // Add action for the "Update" button
+            updateButton.setOnAction(e -> {
+                openUpdateForm(blog);
+                BlogDAO.updateBlog(blog);
+            });
+
+            // Add action for the "Delete" button
+            deleteButton.setOnAction(e -> {
+                // Delete the blog from the database
+                BlogDAO.deleteBlog(blog.getId());
+                // Refresh the list of blogs
+                searchBlogs(query);
+            });
+
+            // Add scaling effect on hover
+            addScalingEffect(newBlogBox);
+
+            // Add new VBox to the grid pane
+            gridPane.add(newBlogBox, colIndex, rowIndex);
+
+            // Update column and row indices
+            colIndex++;
+            if (colIndex >= numColumns) {
+                colIndex = 0;
+                rowIndex++;
+            }
+        }
+    }
     // Method to load blogs from the database and populate the grid
     private void loadBlogs() {
         // Clear the existing grid content

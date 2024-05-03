@@ -10,6 +10,7 @@ public class BlogDAO {
     // Define SQL queries
     private static final String SELECT_ALL_BLOGS_SQL = "SELECT * FROM Blog";
     private static final String DELETE_BLOG_SQL = "DELETE FROM Blog WHERE id = ?";
+    private static final String SEARCH_BLOGS_BY_TITLE_SQL = "SELECT * FROM Blog WHERE title LIKE ?";
 
     // Method to retrieve all blogs from the database
     public static List<Blog> getAllBlogs() {
@@ -91,5 +92,30 @@ public class BlogDAO {
                 e.printStackTrace();
             }
         }
+    }
+    // Method to search blogs by title
+    public static List<Blog> searchBlogsByTitle(String query) {
+        List<Blog> searchedBlogs = new ArrayList<>();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SEARCH_BLOGS_BY_TITLE_SQL)) {
+            preparedStatement.setString(1, "%" + query + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Blog blog = extractBlogFromResultSet(resultSet);
+                searchedBlogs.add(blog);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return searchedBlogs;
+    }
+    private static Blog extractBlogFromResultSet(ResultSet resultSet) throws SQLException {
+        Blog blog = new Blog();
+        blog.setId(resultSet.getInt("id"));
+        blog.setCover(resultSet.getString("cover"));
+        blog.setTitle(resultSet.getString("title"));
+        blog.setAuthor(resultSet.getString("author"));
+        blog.setContent(resultSet.getString("content"));
+        return blog;
     }
 }
