@@ -118,4 +118,105 @@ public class BlogDAO {
         blog.setContent(resultSet.getString("content"));
         return blog;
     }
+
+    public static void updateLikedStatus(int blogId, boolean liked) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String sql = "UPDATE blog SET liked = ? WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setBoolean(1, liked);
+            preparedStatement.setInt(2, blogId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(connection, preparedStatement, null);
+        }
+    }
+    public static void updateDislikedStatus(int blogId, boolean disliked) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String sql = "UPDATE blog SET disliked = ? WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setBoolean(1, disliked);
+            preparedStatement.setInt(2, blogId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(connection, preparedStatement, null);
+        }
+    }
+    private static void close(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean getLikedStatus(int blogId) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        boolean isLiked = false;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String sql = "SELECT liked FROM blog WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, blogId);
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                isLiked = resultSet.getBoolean("liked");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+
+        return isLiked;
+    }
+
+    // Method to get disliked status from the database
+    public static boolean getDislikedStatus(int blogId) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        boolean isDisliked = false;
+
+        try {
+            connection = DatabaseConnection.getConnection();
+            String sql = "SELECT disliked FROM blog WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, blogId);
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                isDisliked = resultSet.getBoolean("disliked");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+
+        return isDisliked;
+    }
 }

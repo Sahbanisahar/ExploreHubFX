@@ -29,6 +29,12 @@ public class BlogDetailsController {
     @FXML
     private Button deleteButton;
 
+    @FXML
+    private Button likeButton;
+
+    @FXML
+    private Button dislikeButton;
+
     private Stage stage;
     private Blog blog;
 
@@ -38,6 +44,14 @@ public class BlogDetailsController {
         titleLabel.setText(blog.getTitle());
         authorLabel.setText("Author: " + blog.getAuthor());
         contentArea.setText(blog.getContent());
+
+    // Fetch like and dislike status from the database
+        boolean isLiked = BlogDAO.getLikedStatus(blog.getId());
+        boolean isDisliked = BlogDAO.getDislikedStatus(blog.getId());
+
+        // Update like and dislike buttons based on database status
+        updateButtonStyle(likeButton, isLiked);
+        updateButtonStyle(dislikeButton, isDisliked);
     }
 
     // Method to set the stage
@@ -78,7 +92,7 @@ public class BlogDetailsController {
             updateStage.setScene(scene);
             updateStage.show();
         } catch (IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -89,5 +103,52 @@ public class BlogDetailsController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    @FXML
+    private void handleLike() {
+        if (!blog.isLiked()) {
+            BlogDAO.updateLikedStatus(blog.getId(), true);
+            blog.setLiked(true);
+            updateButtonStyle(likeButton, true);
+
+            // If the blog was previously disliked, update its status
+            if (blog.isDisliked()) {
+                BlogDAO.updateDislikedStatus(blog.getId(), false);
+                blog.setDisliked(false);
+                updateButtonStyle(dislikeButton, false);
+            }
+        } else {
+            // If already liked, remove the like
+            BlogDAO.updateLikedStatus(blog.getId(), false);
+            blog.setLiked(false);
+            updateButtonStyle(likeButton, false);
+        }
+    }
+    @FXML
+    private void handleDislike() {
+        if (!blog.isDisliked()) {
+            BlogDAO.updateDislikedStatus(blog.getId(), true);
+            blog.setDisliked(true);
+            updateButtonStyle(dislikeButton, true);
+
+            // If the blog was previously liked, update its status
+            if (blog.isLiked()) {
+                BlogDAO.updateLikedStatus(blog.getId(), false);
+                blog.setLiked(false);
+                updateButtonStyle(likeButton, false);
+            }
+        } else {
+            // If already disliked, remove the dislike
+            BlogDAO.updateDislikedStatus(blog.getId(), false);
+            blog.setDisliked(false);
+            updateButtonStyle(dislikeButton, false);
+        }
+    }
+    private void updateButtonStyle(Button button, boolean isActive) {
+        if (isActive) {
+            button.setStyle("-fx-background-color: orange; -fx-text-fill: WHITE;");
+        } else {
+            button.setStyle("-fx-background-color: #b8b8b8; -fx-text-fill: WHITE;");
+        }
     }
 }

@@ -101,8 +101,11 @@ public class ListBlogsController {
                     // Set up the stage for the blog details page
                     Stage stage = new Stage();
                     stage.setTitle(blog.getTitle());
+                    stage.setWidth(1095);
+                    stage.setHeight(800);
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
+
                     stage.show();
                 } catch (IOException ex) {
                     ex.printStackTrace();

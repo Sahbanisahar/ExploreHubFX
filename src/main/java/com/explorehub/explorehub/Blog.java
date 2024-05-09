@@ -8,6 +8,9 @@ public class Blog {
     private String author;
     private String content;
 
+    private boolean liked;
+
+    private boolean disliked;
     // Constructors
     public Blog() {
     }
@@ -89,5 +92,19 @@ public class Blog {
                 ", author='" + author + '\'' +
                 ", content='" + content + '\'' +
                 '}';
+    }
+    public boolean isLiked() {
+        return liked;
+    }
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
+
+    public boolean isDisliked() {
+        return disliked;
+    }
+
+    public void setDisliked(boolean disliked) {
+        this.disliked = disliked;
     }
 }
