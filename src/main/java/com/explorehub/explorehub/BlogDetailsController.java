@@ -8,9 +8,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BlogDetailsController {
 
@@ -35,6 +38,9 @@ public class BlogDetailsController {
     @FXML
     private Button dislikeButton;
 
+    @FXML
+    private ImageView coverImageView;
+
     private Stage stage;
     private Blog blog;
 
@@ -45,13 +51,38 @@ public class BlogDetailsController {
         authorLabel.setText("Author: " + blog.getAuthor());
         contentArea.setText(blog.getContent());
 
-    // Fetch like and dislike status from the database
+        // Load cover image URL from the database
+        Image coverImage = loadCoverImage(blog.getCover());
+        coverImageView.setImage(coverImage);
+
+        // Fetch like and dislike status from the database
         boolean isLiked = BlogDAO.getLikedStatus(blog.getId());
         boolean isDisliked = BlogDAO.getDislikedStatus(blog.getId());
 
         // Update like and dislike buttons based on database status
         updateButtonStyle(likeButton, isLiked);
         updateButtonStyle(dislikeButton, isDisliked);
+    }
+
+    // Method to load cover image from URL
+    private Image loadCoverImage(String coverUrl) {
+        if (coverUrl != null && !coverUrl.isEmpty()) {
+            try {
+                InputStream inputStream = getClass().getResourceAsStream(coverUrl);
+                return inputStream != null ? new Image(inputStream) : getDefaultCoverImage();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return getDefaultCoverImage();
+            }
+        } else {
+            return getDefaultCoverImage();
+        }
+    }
+
+    // Method to load default cover image
+    private Image getDefaultCoverImage() {
+        InputStream defaultInputStream = getClass().getResourceAsStream("/photos/cover.png");
+        return defaultInputStream != null ? new Image(defaultInputStream) : null;
     }
 
     // Method to set the stage
@@ -104,6 +135,7 @@ public class BlogDetailsController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     @FXML
     private void handleLike() {
         if (!blog.isLiked()) {
@@ -124,6 +156,7 @@ public class BlogDetailsController {
             updateButtonStyle(likeButton, false);
         }
     }
+
     @FXML
     private void handleDislike() {
         if (!blog.isDisliked()) {
@@ -144,6 +177,7 @@ public class BlogDetailsController {
             updateButtonStyle(dislikeButton, false);
         }
     }
+
     private void updateButtonStyle(Button button, boolean isActive) {
         if (isActive) {
             button.setStyle("-fx-background-color: orange; -fx-text-fill: WHITE;");

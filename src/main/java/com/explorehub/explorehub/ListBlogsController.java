@@ -35,14 +35,14 @@ public class ListBlogsController {
     @FXML
     public void initialize() {
         loadBlogs();
-        setupSearchListener();
+        //setupSearchListener();
     }
 
-    private void setupSearchListener() {
+    /* private void setupSearchListener() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             searchBlogs(newValue);
         });
-    }
+    } */
 
     private void searchBlogs(String query) {
         List<Blog> searchedBlogs = BlogDAO.searchBlogsByTitle(query);
@@ -70,7 +70,7 @@ public class ListBlogsController {
 
             // Load cover image dynamically
             ImageView imageView = new ImageView();
-            Image coverImage = loadCoverImage();
+            Image coverImage = loadCoverImage(blog.getCover());
             imageView.setImage(coverImage);
             imageView.setFitWidth(300);
             imageView.setFitHeight(200);
@@ -141,6 +141,7 @@ public class ListBlogsController {
         }
     }
     // Method to load blogs from the database and populate the grid
+    // Load blogs from the database and populate the grid
     private void loadBlogs() {
         // Clear the existing grid content
         gridPane.getChildren().clear();
@@ -160,6 +161,9 @@ public class ListBlogsController {
         // Iterate over blogs in reverse order and populate the grid
         for (int i = blogs.size() - 1; i >= 0; i--) {
             Blog blog = blogs.get(i);
+            // Load cover image dynamically using the URL from the database
+            Image coverImage = loadCoverImage(blog.getCover());
+
             // Create new instances of labels and buttons for each blog post
             Label titleLabel = new Label();
             titleLabel.setStyle("-fx-font-weight: bold;");
@@ -173,7 +177,6 @@ public class ListBlogsController {
 
             // Load cover image dynamically
             ImageView imageView = new ImageView();
-            Image coverImage = loadCoverImage();
             imageView.setImage(coverImage);
             imageView.setFitWidth(300);
             imageView.setFitHeight(200);
@@ -241,12 +244,40 @@ public class ListBlogsController {
         }
     }
 
+
     // Function to load cover image from resources
-    private Image loadCoverImage() {
-        String imagePath = "/cover.jpg"; // Adjust the path if needed
-        InputStream inputStream = getClass().getResourceAsStream(imagePath);
-        return new Image(inputStream);
+
+    private Image loadCoverImage(String coverUrl) {
+        if (coverUrl == null || coverUrl.isEmpty()) {
+            // If coverUrl is null or empty, return a default image or handle it as appropriate
+            return getDefaultCoverImage(); // You need to implement this method
+        } else {
+            // Attempt to load the image from the provided coverUrl
+            try (InputStream inputStream = getClass().getResourceAsStream(coverUrl)) {
+                if (inputStream != null) {
+                    return new Image(inputStream);
+                } else {
+                    // If inputStream is null, the resource couldn't be loaded, handle it as appropriate
+                    return getDefaultCoverImage(); // You need to implement this method
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Handle the exception as appropriate, e.g., return a default image
+                return getDefaultCoverImage();
+            }
+        }
     }
+
+    private Image getDefaultCoverImage() {
+        InputStream defaultInputStream = getClass().getResourceAsStream("/photos/cover.png");
+        if (defaultInputStream != null) {
+            return new Image(defaultInputStream);
+        } else {
+            // Handle case where default image cannot be loaded
+            return null;
+        }
+    }
+
 
     // Function to truncate content to first three words followed by "..."
     private String truncateContent(String content) {
@@ -281,28 +312,25 @@ public class ListBlogsController {
     @FXML
     private void handleAddPostButtonClick() {
         try {
-            // Load the FXML file for the add page
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("AddBlog.fxml"));
-            Parent root = loader.load();
-
-            // Set up the stage for the add page
+            FXMLLoader loader = new FXMLLoader(this.getClass().getResource("AddBlog.fxml"));
+            Parent root = (Parent) loader.load();
             Stage stage = new Stage();
             stage.setTitle("Add Blog");
             Scene scene = new Scene(root);
             stage.setScene(scene);
-
-            // Set up event handler to refresh blogs after adding a new one
-            AddBlogController addBlogController = loader.getController();
-            addBlogController.setOnBlogAddedListener(event -> {
-                loadBlogs(); // Refresh blogs
-                stage.close(); // Close the add blog stage
+            AddBlogController addBlogController = (AddBlogController) loader.getController();
+            addBlogController.setOnBlogAddedListener((event) -> {
+                // Clear the grid pane's children before reloading blogs
+                gridPane.getChildren().clear();
+                loadBlogs();
+                stage.close();
             });
-
             stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException var6) {
+            var6.printStackTrace();
         }
     }
+
 
     // Function to open the update form for a blog
     private void openUpdateForm(Blog blog) {
